@@ -1,0 +1,27 @@
+import pandas as pd
+import altair as alt
+
+df = pd.read_csv('API_SP.POP.TOTL_DS2_en_csv_v2_38144.csv', skiprows=4)
+
+metadata_df = pd.read_csv('Metadata_Country_API_SP.POP.TOTL_DS2_en_csv_v2_38144.csv')
+
+country_codes = metadata_df[metadata_df['IncomeGroup'].isin(['Low income', 'Lower middle income', 'Upper middle income', 'High income'])]['Country Code'].unique()
+
+df_countries = df[df['Country Code'].isin(country_codes)].copy()
+
+plot_df = df_countries[['Country Name', '2023']].copy()
+
+plot_df = plot_df.sort_values(by='2023', ascending=False)
+
+top_10_countries = plot_df.head(10)
+
+chart = alt.Chart(top_10_countries).mark_bar().encode(
+    x=alt.X('2023', axis=alt.Axis(title='Population in 2023', format='s')),
+    y=alt.Y('Country Name', sort='-x', title='Country Name')
+).properties(
+    title='Top 10 Countries by Population in 2023'
+)
+
+chart.save('top_10_countries_population_2023_bar_chart.json')
+
+chart 
